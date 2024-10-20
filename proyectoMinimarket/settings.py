@@ -12,15 +12,6 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 import os
-from django.contrib.messages import constants as messages
-
-MESSAGE_TAGS = {
-    messages.DEBUG: 'debug',
-    messages.INFO: 'info',
-    messages.SUCCESS: 'success',
-    messages.WARNING: 'warning',
-    messages.ERROR: 'danger',
-}
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -136,8 +127,3 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-AUTH_USER_MODEL = 'core.Usuario'
-
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
