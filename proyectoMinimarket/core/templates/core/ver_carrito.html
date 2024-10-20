@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrito de Compras</title>
+</head>
+<body>
+    <h1>Carrito de Compras</h1>
+    <ul>
+        {% for producto_id, detalles in carrito.items %}
+            <li>
+                <h2>{{ detalles.nombre }} (Cantidad: {{ detalles.cantidad }})</h2>
+                <p>Precio unitario: {{ detalles.precio }} CLP</p>
+                <p>Total por este producto: {{ detalles.total_producto|floatformat:2 }} CLP</p>
+                <a href="{% url 'eliminar_del_carrito' producto_id %}">Eliminar del carrito</a>
+            </li>
+        {% endfor %}
+    </ul>
+    <p>Total del carrito: {{ total_carrito|floatformat:2 }} CLP</p>
+
+    <a href="{% url 'checkout' %}">Proceder al Checkout</a>
+    <a href="{% url 'lista_productos' %}">Volver a la tienda</a>
+</body>
+</html>
