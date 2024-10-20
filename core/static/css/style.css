@@ -1,0 +1,39 @@
+.navbar-red {
+    background-color: yellow !important;
+}
+.navbar-nav {
+    margin: 0 auto;
+}
+.card-producto {
+    border: 1px solid #ccc;
+    border-radius: 15px;
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+.card-producto:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+.card-producto img {
+    border-bottom: 1px solid #ccc;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+}
+.card-title {
+    color: #343a40;
+    font-weight: bold;
+}
+.card-text {
+    color: #555;
+}
+.btn-primary {
+    background-color: #007bff;
+    border: none;
+    border-radius: 20px;
+    padding: 10px 20px;
+    transition: background-color 0.3s, transform 0.3s;
+}
+.btn-primary:hover {
+    background-color: #0056b3;
+    transform: translateY(-3px);
+}

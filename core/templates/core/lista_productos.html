@@ -1,0 +1,29 @@
+{% extends 'core/base.html' %}
+
+{% block main %}
+    <!-- Contenido principal mejorado -->
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Productos Disponibles</h1>
+        <div class="row">
+            {% for producto in productos %}
+            <div class="col-md-4 mb-4">
+                <div class="card card-producto h-100">
+                    <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" class="card-img-top">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ producto.nombre }}</h5>
+                        <p class="card-text">{{ producto.descripcion }}</p>
+                        <p class="card-text"><strong>Precio:</strong> {{ producto.precio }} CLP</p>
+                        <!--<p class="card-text"><strong>Stock:</strong> {{ producto.stock }}</p>>-->
+                        <a href="{% url 'agregar_al_carrito' producto.id %}" class="btn btn-primary w-100">Añadir al carrito</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+{% endblock %}
