@@ -1,6 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Producto
-
+from reportlab.lib.pagesizes import A4
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
+from django.http import HttpResponse
 
 
 
@@ -104,3 +108,60 @@ def eliminar_del_carrito(request, producto_id):
         guardar_carrito(request, carrito)  # Actualizamos el carrito en la sesión
 
     return redirect('ver_carrito')
+
+
+# Generar el pdf
+def generar_pdf_pedido(request, pedido_id):
+    # Obtener detalles del pedido
+    pedido = get_object_or_404(Pedido, id=pedido_id)
+    detalles = DetallePedido.objects.filter(pedido=pedido)
+
+    # Crear respuesta Http como PDF
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="pedido_{pedido_id}.pdf"'
+
+    # Crear PDF
+    doc = SimpleDocTemplate(response, pagesize=A4)
+    elementos = []
+
+    # Estilos de texto
+    estilos = getSampleStyleSheet()
+    estilo_normal = estilos['Normal']
+
+    # Encabezado del pedido
+    elementos.append(Paragraph(f'Pedido N° {pedido.id}', estilo_normal))
+    elementos.append(Paragraph(f'Cliente: {pedido.nombre_cliente}', estilo_normal))
+    elementos.append(Paragraph(f'Dirección de envío: {pedido.direccion_envio}', estilo_normal))
+    elementos.append(Paragraph(f'Correo electrónico: {pedido.correo_electronico}', estilo_normal))
+    elementos.append(Paragraph(f'Fecha de pedido: {pedido.fecha_pedido.strftime("%d/%m/%Y %H:%M")}', estilo_normal))
+    elementos.append(Paragraph(f'Total: ${pedido.total}', estilo_normal))
+    elementos.append(Paragraph(' ', estilo_normal))  
+
+    # Tabla de productos
+    datos = [['Producto', 'Cantidad', 'Precio Unitario', 'Total']]
+    for detalle in detalles:
+        producto = detalle.producto
+        cantidad = detalle.cantidad
+        precio_unitario = producto.precio
+        total_producto = cantidad * precio_unitario
+        datos.append([producto.nombre, cantidad, f"${precio_unitario}", f"${total_producto}"])
+
+    # Añadir estilo a la tabla
+    tabla = Table(datos)
+    tabla.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+    ]))
+
+    # Añadir la tabla al PDF
+    elementos.append(tabla)
+
+    # Generar el PDF
+    doc.build(elementos)
+
+    return response
