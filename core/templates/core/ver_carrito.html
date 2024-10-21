@@ -2,20 +2,63 @@
 
 {% block main %}
 
-    <h1>Carrito de Compras</h1>
-    <ul>
-        {% for producto_id, detalles in carrito.items %}
-            <li>
-                <h2>{{ detalles.nombre }} (Cantidad: {{ detalles.cantidad }})</h2>
-                <p>Precio unitario: {{ detalles.precio }} CLP</p>
-                <p>Total por este producto: {{ detalles.total_producto|floatformat:2 }} CLP</p>
-                <a href="{% url 'eliminar_del_carrito' producto_id %}">Eliminar del carrito</a>
-            </li>
-        {% endfor %}
-    </ul>
-    <p>Total del carrito: {{ total_carrito|floatformat:2 }} CLP</p>
+    
 
-    <a href="{% url 'checkout' %}">Proceder al Checkout</a>
-    <a href="{% url 'lista_productos' %}">Volver a la tienda</a>
+<div class="row">
+    <div class="col-1">
 
+    </div>
+    <div class="col-7">
+        <a href="{% url 'lista_productos' %}">Volver a la tienda</a>
+        <h1>Mi Carrito</h1>
+        <p>Estos son los productos que tienes en tu carrito de compras:</p>
+        <table class="table">
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio</th>
+                
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+                {% for producto_id, detalles in carrito.items %}
+                <tr>
+                <td>{{ detalles.nombre }}</td>
+                <td>{{ detalles.cantidad }}</td>
+                <td>{{ detalles.precio }}</td>
+                
+                <td>
+                    <form action="{% url 'eliminar_del_carrito' producto_id %}" method="POST">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-danger btn-sm">Eliminar del carrito</button>
+                    </form>
+                  </td>
+                  
+                </tr>
+            {% endfor %}
+              
+            </tbody>
+          </table>
+    </div>
+    <div class="col-3"><div class="card text-center">
+        
+        <div class="card-header">
+            <h5 class="card-title">Resumen del pedido</h5>
+        </div>
+        <div class="card-body">
+          
+          <p class="card-text">Subtotal $9999</p>
+          <p class="card-text">Descuentos $9999</p>
+          <p class="card-text"> Total {{ total_carrito|floatformat:2 }}</p>
+          
+        </div>
+        <div class="card-footer text-body-secondary">
+            <a href="{% url 'checkout' %}" class="btn btn-primary">Proceder al Checkout</a>
+        </div>
+      </div></div>
+  </div>
+
+  
 {% endblock %}
