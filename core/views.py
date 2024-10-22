@@ -78,6 +78,7 @@ def agregar_al_carrito(request, producto_id):
             'nombre': producto.nombre,
             'precio': str(producto.precio),  # Almacenamos el precio como string por si hay decimales
             'cantidad': 1,
+            'imagen': producto.imagen.url
         }
 
     guardar_carrito(request, carrito)  # Guardamos el carrito en la sesión

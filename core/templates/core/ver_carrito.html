@@ -2,7 +2,7 @@
 
 {% block main %}
 
-    
+{% load static %}
 
 <div class="row">
     <div class="col-1">
@@ -15,6 +15,7 @@
         <table class="table">
             <thead>
               <tr>
+                <th>Imagen</th>
                 <th>Producto</th>
                 <th>Cantidad</th>
                 <th>Precio</th>
@@ -25,15 +26,18 @@
             <tbody>
                 {% for producto_id, detalles in carrito.items %}
                 <tr>
+                  <td><img src="{{ detalles.imagen }}" alt="{{ detalles.nombre }}" class="card-img-top" style="width: 100px; height: auto;"></td>
                 <td>{{ detalles.nombre }}</td>
                 <td>{{ detalles.cantidad }}</td>
                 <td>{{ detalles.precio }}</td>
                 
+
+
                 <td>
-                    <form action="{% url 'eliminar_del_carrito' producto_id %}" method="POST">
-                      {% csrf_token %}
-                      <button type="submit" class="btn btn-danger btn-sm">Eliminar del carrito</button>
-                    </form>
+                  <form action="{% url 'eliminar_del_carrito' producto_id %}" method="POST">
+                    {% csrf_token %}
+                    <input type="image" src="{% static 'img/basurero.png' %}" alt="Eliminar" style="width: 30px; height: 30px;">
+                </form>
                   </td>
                   
                 </tr>
