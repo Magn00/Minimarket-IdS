@@ -2,8 +2,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import Producto
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
-from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle, Spacer
+from reportlab.lib.units import cm
 from django.http import HttpResponse
 from .forms import ProductoForm
 from django.contrib.auth.decorators import login_required
@@ -110,8 +111,7 @@ def eliminar_del_carrito(request, producto_id):
         guardar_carrito(request, carrito)  # Actualizamos el carrito en la sesión
 
     return redirect('ver_carrito')
-
-
+=======
 # Vista para que el vendedor agregue o edite productos
 @login_required
 def agregar_modificar_producto(request, producto_id=None):
@@ -148,57 +148,83 @@ def borrar_producto(request, producto_id):
     return redirect('agregar_producto')  # Redirigimos de nuevo a la vista de agregar/modificar
 
 # Generar el pdf
+
 def generar_pdf_pedido(request, pedido_id):
-    # Obtener detalles del pedido
     pedido = get_object_or_404(Pedido, id=pedido_id)
     detalles = DetallePedido.objects.filter(pedido=pedido)
-
-    # Crear respuesta Http como PDF
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="pedido_{pedido_id}.pdf"'
-
-    # Crear PDF
-    doc = SimpleDocTemplate(response, pagesize=A4)
+    doc = SimpleDocTemplate(response, pagesize=A4,
+                            rightMargin=2*cm, leftMargin=2*cm,
+                            topMargin=2*cm, bottomMargin=2*cm)
     elementos = []
-
-    # Estilos de texto
     estilos = getSampleStyleSheet()
-    estilo_normal = estilos['Normal']
-
-    # Encabezado del pedido
-    elementos.append(Paragraph(f'Pedido N° {pedido.id}', estilo_normal))
-    elementos.append(Paragraph(f'Cliente: {pedido.nombre_cliente}', estilo_normal))
-    elementos.append(Paragraph(f'Dirección de envío: {pedido.direccion_envio}', estilo_normal))
-    elementos.append(Paragraph(f'Correo electrónico: {pedido.correo_electronico}', estilo_normal))
-    elementos.append(Paragraph(f'Fecha de pedido: {pedido.fecha_pedido.strftime("%d/%m/%Y %H:%M")}', estilo_normal))
-    elementos.append(Paragraph(f'Total: ${pedido.total}', estilo_normal))
-    elementos.append(Paragraph(' ', estilo_normal))  
-
-    # Tabla de productos
+    estilo_titulo = ParagraphStyle(
+        'Titulo',
+        parent=estilos['Heading1'],
+        fontName='Helvetica-Bold',
+        fontSize=16,
+        alignment=1,  # Centrado
+        spaceAfter=20
+    )
+    estilo_normal_bold = ParagraphStyle(
+        'NormalBold',
+        parent=estilos['Normal'],
+        fontName='Helvetica-Bold',
+        fontSize=10,
+        spaceAfter=5
+    )
+    estilo_normal = ParagraphStyle(
+        'Normal',
+        parent=estilos['Normal'],
+        fontSize=10,
+        spaceAfter=5
+    )
+    elementos.append(Paragraph('Detalle del Pedido', estilo_titulo))
+    elementos.append(Spacer(1, 12))
+    elementos.append(Paragraph(f'<b>Pedido N°:</b> {pedido.id}', estilo_normal))
+    elementos.append(Paragraph(f'<b>Cliente:</b> {pedido.nombre_cliente}', estilo_normal))
+    elementos.append(Paragraph(f'<b>Dirección de envío:</b> {pedido.direccion_envio}', estilo_normal))
+    elementos.append(Paragraph(f'<b>Correo electrónico:</b> {pedido.correo_electronico}', estilo_normal))
+    elementos.append(Paragraph(f'<b>Fecha de pedido:</b> {pedido.fecha_pedido.strftime("%d/%m/%Y %H:%M")}', estilo_normal))
+    elementos.append(Paragraph(f'<b>Total:</b> ${pedido.total:.2f}', estilo_normal))
+    elementos.append(Spacer(1, 12))
     datos = [['Producto', 'Cantidad', 'Precio Unitario', 'Total']]
     for detalle in detalles:
         producto = detalle.producto
         cantidad = detalle.cantidad
         precio_unitario = producto.precio
         total_producto = cantidad * precio_unitario
-        datos.append([producto.nombre, cantidad, f"${precio_unitario}", f"${total_producto}"])
-
-    # Añadir estilo a la tabla
-    tabla = Table(datos)
+        datos.append([
+            producto.nombre,
+            cantidad,
+            f"${precio_unitario:.2f}",
+            f"${total_producto:.2f}"
+        ])
+    tabla = Table(datos, colWidths=[8*cm, 3*cm, 4*cm, 4*cm])
     tabla.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#4F81BD")),  # Fondo azul en encabezado
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),              # Texto blanco en encabezado
+        ('ALIGN', (1, 1), (-1, -1), 'CENTER'),
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 12),
         ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.HexColor("#D9E1F2")),  # Fondo azul claro en filas
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+        ('FONTSIZE', (0, 1), (-1, -1), 10),
     ]))
-
-    # Añadir la tabla al PDF
+    for i in range(1, len(datos)):
+        if i % 2 == 0:
+            tabla.setStyle(TableStyle([
+                ('BACKGROUND', (0, i), (-1, i), colors.HexColor("#F2F2F2")),
+            ]))
     elementos.append(tabla)
-
-    # Generar el PDF
+    elementos.append(Spacer(1, 24))
+    elementos.append(Paragraph(f'<b>Total a Pagar:</b> ${pedido.total:.2f}', estilo_normal_bold))
+    elementos.append(Spacer(1, 12))
+    footer_text = "Gracias por tu compra. Si tienes alguna pregunta, no dudes en contactarnos."
+    elementos.append(Paragraph(footer_text, estilo_normal))
+    
     doc.build(elementos)
 
     return response
