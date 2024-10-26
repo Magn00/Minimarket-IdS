@@ -24,7 +24,11 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{%url 'lista_productos'%}">Productos</a>
                     </li>
-                    
+                    <li class="nav-item">
+                        {% if user.is_authenticated %}
+                            <a class="nav-link" href="{% url 'agregar_producto' %}">Agregar/Modificar Producto</a>
+                        {% endif %}
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'ver_carrito' %}">
                             Ver Carrito

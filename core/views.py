@@ -6,7 +6,9 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle, Spacer
 from reportlab.lib.units import cm
 from django.http import HttpResponse
-
+from .forms import ProductoForm
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 
 
 
@@ -109,8 +111,43 @@ def eliminar_del_carrito(request, producto_id):
         guardar_carrito(request, carrito)  # Actualizamos el carrito en la sesión
 
     return redirect('ver_carrito')
+=======
+# Vista para que el vendedor agregue o edite productos
+@login_required
+def agregar_modificar_producto(request, producto_id=None):
+    producto = get_object_or_404(Producto, id=producto_id) if producto_id else None
+    nombre_producto = None  # Inicializamos el nombre del producto
+    productos = Producto.objects.all()  # Obtener todos los productos
 
+    if request.method == 'POST':
+        form = ProductoForm(request.POST, request.FILES, instance=producto)
+        if form.is_valid():
+            producto = form.save()  # Guardamos el producto
+            nombre_producto = producto.nombre  # Obtenemos el nombre del producto guardado
+            if producto_id:
+                messages.success(request, f'¡El producto "{nombre_producto}" ha sido modificado exitosamente!')
+            else:
+                messages.success(request, f'¡El producto "{nombre_producto}" ha sido agregado exitosamente!')
+            return redirect('agregar_producto')  # Redirigimos después de guardar
+    else:
+        form = ProductoForm(instance=producto)
 
+    return render(request, 'core/agregar_modificar_producto.html', {
+        'form': form,
+        'productos': productos,  # Pasamos la lista de productos
+        'producto': producto,  # Pasamos el producto actual (None si es agregar)
+    })
+
+#Borrar producto
+@login_required
+def borrar_producto(request, producto_id):
+    producto = get_object_or_404(Producto, id=producto_id)
+    nombre_producto = producto.nombre  # Guardamos el nombre antes de eliminarlo
+    producto.delete()  # Eliminamos el producto
+    messages.success(request, f'¡El producto "{nombre_producto}" ha sido eliminado exitosamente!')
+    return redirect('agregar_producto')  # Redirigimos de nuevo a la vista de agregar/modificar
+
+# Generar el pdf
 
 def generar_pdf_pedido(request, pedido_id):
     pedido = get_object_or_404(Pedido, id=pedido_id)

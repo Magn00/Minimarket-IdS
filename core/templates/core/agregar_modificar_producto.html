@@ -1,0 +1,64 @@
+{% extends 'core/base.html' %}
+
+{% block main %}
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">
+            {% if producto %} Modificar Producto {% else %} Agregar Producto {% endif %}
+        </h1>
+
+        <!-- Mostrar mensajes de éxito o error -->
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-success" role="alert">
+                {{ message }}
+            </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Formulario para agregar o modificar productos -->
+        <form method="post" enctype="multipart/form-data" class="form-group">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">
+                {% if producto %} Guardar Cambios {% else %} Guardar Producto {% endif %}
+            </button>
+
+            <!-- Botón para eliminar producto solo si estamos modificando -->
+            {% if producto %}
+            <a href="{% url 'borrar_producto' producto.id %}" class="btn btn-danger ml-2" onclick="return confirm('¿Estás seguro de que deseas eliminar este producto?');">
+                Eliminar Producto
+            </a>
+            {% endif %}
+        </form>
+
+        <!-- Botón para agregar un nuevo producto cuando estamos en la vista de modificar -->
+        {% if producto %}
+        <div class="mt-4">
+            <a href="{% url 'agregar_producto' %}" class="btn btn-secondary">
+                Agregar Nuevo Producto
+            </a>
+        </div>
+        {% endif %}
+
+        <hr>
+
+        <!-- Sección de productos para modificar -->
+        <h2 class="text-center mb-4">Productos Disponibles</h2>
+        <div class="row">
+            {% for producto in productos %}
+            <div class="col-md-4 mb-4">
+                <div class="card card-producto h-100">
+                    <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" class="card-img-top">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ producto.nombre }}</h5>
+                        <p class="card-text">{{ producto.descripcion }}</p>
+                        <p class="card-text"><strong>Precio:</strong> {{ producto.precio }} CLP</p>
+                        <p class="card-text"><strong>Stock:</strong> {{ producto.stock }}</p>
+                        <a href="{% url 'modificar_producto' producto.id %}" class="btn btn-warning w-100 mb-2">Modificar</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
