@@ -15,6 +15,40 @@ from django.contrib import messages
 from django import forms
 from .models import Pedido, DetallePedido
 
+
+
+
+
+
+
+
+from django.contrib.auth import login
+from .forms import RegistroForm
+
+
+def registro(request):
+    if request.method == 'POST':
+        form = RegistroForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)  # Inicia sesión automáticamente después del registro
+            return redirect('lista_productos')
+    else:
+        form = RegistroForm()
+    return render(request, 'core/registro.html', {'form': form})
+
+
+
+
+
+
+
+
+
+
+
+
+
 # Formulario para los datos del pedido
 class PedidoForm(forms.ModelForm):
     class Meta:
@@ -111,7 +145,7 @@ def eliminar_del_carrito(request, producto_id):
         guardar_carrito(request, carrito)  # Actualizamos el carrito en la sesión
 
     return redirect('ver_carrito')
-=======
+
 # Vista para que el vendedor agregue o edite productos
 @login_required
 def agregar_modificar_producto(request, producto_id=None):
