@@ -17,7 +17,9 @@ urlpatterns = [
     path('agregar_producto/', views.agregar_modificar_producto, name='agregar_producto'),
     path('modificar_producto/<int:producto_id>/', views.agregar_modificar_producto, name='modificar_producto'),
     path('borrar_producto/<int:producto_id>/', views.borrar_producto, name='borrar_producto'),
-
+    path('pedidos/', views.lista_pedidos, name='lista_pedidos'),
+    path('pedido/<int:pedido_id>/cambiar_estado/', views.cambiar_estado_pedido, name='cambiar_estado_pedido'),
+    path('pedido/<int:pedido_id>/', views.detalle_pedido, name='detalle_pedido'),
     path('registro/', registro, name='registro'),
     path('login/', LoginView.as_view(template_name='core/login.html'), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
