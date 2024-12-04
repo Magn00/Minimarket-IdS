@@ -1,18 +1,48 @@
-{% extends 'base.html' %}
+{% extends 'core/base.html' %}
 
-{% block content %}
-    <div class="container mt-4">
-        <h2>Estado de tu Pedido</h2>
-        <hr>
+{% block main %}
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Lista de Pedidos</h1>
 
-        <!-- Mostrar el estado del pedido -->
-        <div class="alert alert-info">
-            <p><strong>Estado actual:</strong> {{ estado }}</p>
-        </div>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Cliente</th>
+                <th>Correo Electrónico</th>
+                <th>Total</th>
+                <th>Estado</th>
+                <th>Fecha</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
 
-        <!-- Botón para volver a la tienda -->
-        <div class="text-center mt-3">
-            <a href="{% url 'lista_productos' %}" class="btn btn-primary">Volver a la tienda</a>
-        </div>
-    </div>
+            {% for ped in pedidos %}
+            {% if ped.correo_electronico == correo %}
+            {% if ped.estado == 'TRA' %}
+                <script>
+                    window.onload = function() {
+                        Swal.fire({
+                            title: '¡Hola!',
+                            text: 'Tu pedido ya esta listo para retirar',
+                            icon: 'success',
+                            confirmButtonText: 'Aceptar'
+                        });
+                    };
+                </script>
+            <td>{{ ped.id }}</td>
+            <td>{{ ped.nombre_cliente }}</td>
+            <td>{{ ped.correo_electronico }}</td>
+            <td>${{ ped.total }}</td>
+            <td>{{ ped.get_estado_display }}</td>
+            <td>{{ped.fecha_pedido|date:"d-m-Y H:i" }}</td>
+            {%else%}
+            <th>ID</th>
+            {% endif %}
+            {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% endblock %}

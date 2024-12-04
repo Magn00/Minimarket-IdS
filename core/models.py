@@ -56,15 +56,6 @@ class Pedido(models.Model):
     total = models.DecimalField(max_digits=10, decimal_places=2)
     fecha_pedido = models.DateTimeField(auto_now_add=True)
     estado = models.CharField(max_length=3, choices=ESTADOS, default='PRE')  # Campo de estado
-    def estado_pedido(self,Usuario):
-        if Pedido.estado == 'TRA':
-            if Usuario.correo == Pedido.correo_electronico:
-                
-                return 'En tránsito/Disponible para retiro'
-            else:
-                return 'Usted no tiene pedidos asociados a este correo'
-        else:
-            return Pedido.estado
         
     def __str__(self):
         return f"Pedido {self.id} - {self.nombre_cliente} - Estado: {self.get_estado_display()}"

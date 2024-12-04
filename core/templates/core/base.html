@@ -8,7 +8,9 @@
     <title>Productos</title>
     <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
+        
         
     </style>
 </head>
@@ -51,6 +53,11 @@
                     {% if user.is_authenticated %}
                     <li class="nav-item">
                         <p>Bienvenido, {{ user.username }}!</p>
+                    </li>
+                    {% endif %}
+                    {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'estado_pedido' %}">Ver pedido</a>
                     </li>
                     {% endif %}
                 </ul>

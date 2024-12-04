@@ -295,10 +295,17 @@ def cambiar_estado_pedido(request, pedido_id):
     return render(request, 'core/cambiar_estado_pedido.html', {'pedido': pedido})   
 
 @login_required
-def ver_estado_pedido(request, pedido_id):
-    pedido = Pedido.objects.get(id=pedido_id)
+def ver_estado_pedido(request):
     usuario = request.user  # Obtener el usuario actual (suponiendo que el usuario está autenticado)
+    pedidos = Pedido.objects.all()
     
-    estado = pedido.estado_pedido(usuario)  # Usar el método del modelo
-    
-    return render(request, 'core/estado_pedido.html', {'estado': estado})
+    return render(request, 'core/estado_pedido.html', {'correo': usuario.correo, 'pedidos': pedidos})
+
+from django.shortcuts import render
+
+def mi_vista(request):
+    # Puedes pasar un mensaje que desees mostrar en el popup
+    context = {
+        'mensaje': '¡Tu pedido esta listo para retirar!'
+    }
+    return render(request, 'core/estado_pedido.html', context)
