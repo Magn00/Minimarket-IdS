@@ -39,3 +39,13 @@ class CambiarEstadoPedidoForm(forms.ModelForm):
         widgets = {
             'estado': forms.Select(attrs={'class': 'form-control'}),
         }
+class PedidoForm(forms.ModelForm):
+    class Meta:
+        model = Pedido
+        fields = ['nombre_cliente', 'direccion_envio', 'correo_electronico']  # Ajusta según los campos que necesites mostrar en el formulario
+
+        widgets = {
+            'nombre_cliente': forms.TextInput(attrs={'class': 'form-control'}),
+            'direccion_envio': forms.Textarea(attrs={'class': 'form-control'}),
+            'correo_electronico': forms.EmailInput(attrs={'class': 'form-control'}),
+        }

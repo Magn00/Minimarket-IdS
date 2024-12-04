@@ -6,11 +6,11 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle, Spacer
 from reportlab.lib.units import cm
 from django.http import HttpResponse
-from .forms import ProductoForm
+from .forms import ProductoForm,PedidoForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
-
+from .models import Producto, Pedido
 
 from django import forms
 from .models import Pedido, DetallePedido
@@ -65,6 +65,7 @@ class PedidoForm(forms.ModelForm):
         return pedido
 
 # Vista para el checkout
+@login_required
 def checkout(request):
     carrito = request.session.get('carrito', {})
     total_carrito = sum(float(item['precio']) * item['cantidad'] for item in carrito.values())
@@ -74,28 +75,22 @@ def checkout(request):
         if form.is_valid():
             pedido = form.save(commit=False)
             pedido.total = total_carrito
-            pedido.usuario = request.user
+            pedido.usuario = request.user  # Asignar el usuario actual al pedido
             pedido.save()
 
             # Guardar productos del carrito en DetallePedido
             for producto_id, detalles in carrito.items():
                 producto = Producto.objects.get(id=producto_id)
-                DetallePedido.objects.create(
-                    pedido=pedido,
-                    producto=producto,
-                    cantidad=detalles['cantidad']
-                )
+                DetallePedido.objects.create(pedido=pedido, producto=producto, cantidad=detalles['cantidad'])
 
-            # Limpiar el carrito después de realizar el pedido
-            del request.session['carrito']
-            return redirect('lista_productos')  # Puedes redirigir a una página de éxito si prefieres
+            # Limpiar el carrito después del pedido
+            request.session['carrito'] = {}
+
+            return redirect('detalle_pedido', pedido_id=pedido.id)  # Redirigir al detalle del pedido
     else:
         form = PedidoForm()
 
     return render(request, 'core/checkout.html', {'form': form, 'total_carrito': total_carrito})
-
-
-
 
 
 
