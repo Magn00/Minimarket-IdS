@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container mt-4">
+        <h2>Estado de tu Pedido</h2>
+        <hr>
+
+        <!-- Mostrar el estado del pedido -->
+        <div class="alert alert-info">
+            <p><strong>Estado actual:</strong> {{ estado }}</p>
+        </div>
+
+        <!-- Botón para volver a la tienda -->
+        <div class="text-center mt-3">
+            <a href="{% url 'lista_productos' %}" class="btn btn-primary">Volver a la tienda</a>
+        </div>
+    </div>
+{% endblock %}

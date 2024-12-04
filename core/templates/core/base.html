@@ -28,17 +28,29 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'agregar_producto' %}">Agregar/Modificar Producto</a>
                     </li>
+                    {% endif %}
                     {% if user.is_staff %} <!-- Sólo para administradores -->
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'lista_pedidos' %}">Gestión de Pedidos</a>
                     </li>
                     {% endif %}
+                    {% if user.is_authenticated %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'logout' %}">Cerrar Sesión</a>
                     </li>
                     {% else %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'login' %}">Iniciar Sesión</a>
+                    </li>
+                    {% endif %}
+                    {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'ver_carrito' %}">Ver carrito</a>
+                    </li>
+                    {% endif %}
+                    {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <p>Bienvenido, {{ user.username }}!</p>
                     </li>
                     {% endif %}
                 </ul>

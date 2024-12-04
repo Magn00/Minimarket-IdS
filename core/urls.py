@@ -23,6 +23,8 @@ urlpatterns = [
     path('registro/', registro, name='registro'),
     path('login/', LoginView.as_view(template_name='core/login.html'), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
+    path('estado/', views.estado_pedido, name='estado_pedido'),
+    
 ]
 
 

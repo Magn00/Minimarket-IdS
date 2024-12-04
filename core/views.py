@@ -293,3 +293,12 @@ def cambiar_estado_pedido(request, pedido_id):
             messages.error(request, "El estado seleccionado es inválido o no hay cambios.")
     
     return render(request, 'core/cambiar_estado_pedido.html', {'pedido': pedido})   
+
+@login_required
+def ver_estado_pedido(request, pedido_id):
+    pedido = Pedido.objects.get(id=pedido_id)
+    usuario = request.user  # Obtener el usuario actual (suponiendo que el usuario está autenticado)
+    
+    estado = pedido.estado_pedido(usuario)  # Usar el método del modelo
+    
+    return render(request, 'core/estado_pedido.html', {'estado': estado})
