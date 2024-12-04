@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Mis Pedidos</h1>
+  
+  {% if pedidos %}
+    <ul>
+      {% for pedido in pedidos %}
+        <li>
+          Pedido #{{ pedido.id }} - {{ pedido.producto.nombre }} - Cantidad: {{ pedido.cantidad }} - Estado: {{ pedido.estado }} - Fecha: {{ pedido.fecha_pedido }}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No tienes pedidos.</p>
+  {% endif %}
+{% endblock %}

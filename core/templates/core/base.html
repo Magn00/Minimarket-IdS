@@ -2,6 +2,7 @@
 
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,36 +10,56 @@
     <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <style>
-        
+
     </style>
 </head>
+
 <body>
     <!-- Navbar (ya configurada anteriormente) -->
     <nav class="navbar navbar-expand-lg navbar-red">
         <div class="container">
             <a class="navbar-brand" href="#">
-                <img src="{% static 'img/logo.png' %}" alt="Logo" width="100" height="60" class="d-inline-block align-top">
+                <img src="{% static 'img/logo.png' %}" alt="Logo" width="100" height="60"
+                    class="d-inline-block align-top">
             </a>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav mx-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'lista_productos' %}">Productos</a>
                     </li>
+                    
                     {% if user.is_staff %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'agregar_producto' %}">Agregar/Modificar Producto</a>
                     </li>
-                    {% if user.is_staff %} <!-- Sólo para administradores -->
+                     <!-- Sólo para administradores -->
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'lista_pedidos' %}">Gestión de Pedidos</a>
                     </li>
                     {% endif %}
+                    
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'logout' %}">Cerrar Sesión</a>
+                        <a class="nav-link" href="{% url 'ver_carrito' %}">Carrito</a>
+                    </li>
+                    <li class="nav-item">{% if user.is_authenticated %}
+                        <p>Bienvenido, {{ user.username }}!</p>
+                        {% endif %}
+                    </li>
+                    {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <form action="{% url 'logout' %}" method="POST">
+                            {% csrf_token %}
+                            <button type="submit">Cerrar sesión</button>
+                        </form>
                     </li>
                     {% else %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'login' %}">Iniciar Sesión</a>
+                    </li>
+                    {% endif %}
+                    {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'mis_pedidos' %}">Ver pedidos</a>
                     </li>
                     {% endif %}
                 </ul>
@@ -51,4 +72,5 @@
 
     {% endblock %}
 </body>
+
 </html>

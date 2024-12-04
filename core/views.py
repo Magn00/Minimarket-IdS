@@ -55,6 +55,15 @@ class PedidoForm(forms.ModelForm):
         model = Pedido
         fields = ['nombre_cliente', 'direccion_envio', 'correo_electronico']
 
+    # Añadir un campo para capturar el usuario
+    def save(self, commit=True):
+        pedido = super().save(commit=False)
+        if not pedido.usuario:
+            pedido.usuario = self.instance.usuario  # Asigna el usuario actual
+        if commit:
+            pedido.save()
+        return pedido
+
 # Vista para el checkout
 def checkout(request):
     carrito = request.session.get('carrito', {})
@@ -65,6 +74,7 @@ def checkout(request):
         if form.is_valid():
             pedido = form.save(commit=False)
             pedido.total = total_carrito
+            pedido.usuario = request.user
             pedido.save()
 
             # Guardar productos del carrito en DetallePedido
@@ -293,3 +303,8 @@ def cambiar_estado_pedido(request, pedido_id):
             messages.error(request, "El estado seleccionado es inválido o no hay cambios.")
     
     return render(request, 'core/cambiar_estado_pedido.html', {'pedido': pedido})   
+@login_required
+def mis_pedidos(request):
+    # para filtrar los pedidos por usuario
+    pedidos = Pedido.objects.filter(usuario=request.user)  # para tener el usuario especifico
+    return render(request, 'mis_pedidos.html', {'pedidos': pedidos})

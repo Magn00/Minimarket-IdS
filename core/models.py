@@ -48,7 +48,7 @@ class Pedido(models.Model):
         ('ENT', 'Entregado'),
         ('CAN', 'Cancelado'),
     ]
-
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     nombre_cliente = models.CharField(max_length=100)
     direccion_envio = models.CharField(max_length=255)
     correo_electronico = models.EmailField()
