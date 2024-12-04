@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Producto
+from .models import Producto, HistorialEstadoPedido
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -262,3 +262,34 @@ def generar_pdf_pedido(request, pedido_id):
     doc.build(elementos)
 
     return response
+
+def lista_pedidos(request):
+    pedidos = Pedido.objects.all().order_by('-fecha_pedido')  # Ordenar por fecha más reciente primero
+    return render(request, 'core/lista_pedidos.html', {'pedidos': pedidos})
+
+def detalle_pedido(request, pedido_id):
+    pedido = get_object_or_404(Pedido, id=pedido_id)
+    return render(request, 'core/detalle_pedido.html', {'pedido': pedido})   
+
+@login_required
+def cambiar_estado_pedido(request, pedido_id):
+    pedido = get_object_or_404(Pedido, id=pedido_id)
+
+    if request.method == 'POST':
+        nuevo_estado = request.POST.get('estado')
+        if nuevo_estado in dict(Pedido.ESTADOS).keys() and nuevo_estado != pedido.estado:
+            # Crear un registro en el historial de cambio
+            HistorialEstadoPedido.objects.create(
+                pedido=pedido,
+                estado_anterior=pedido.estado,
+                estado_nuevo=nuevo_estado,
+                usuario=request.user  # Registrar el usuario que hace el cambio
+            )
+            # Actualizar el estado del pedido
+            pedido.estado = nuevo_estado
+            pedido.save()
+            messages.success(request, f"El estado del pedido {pedido.id} ha sido actualizado a {pedido.get_estado_display()}.")
+        else:
+            messages.error(request, "El estado seleccionado es inválido o no hay cambios.")
+    
+    return render(request, 'core/cambiar_estado_pedido.html', {'pedido': pedido})   

@@ -1,5 +1,5 @@
 from django import forms
-from .models import Producto, Usuario
+from .models import Pedido, Producto, Usuario
 
 
 
@@ -20,10 +20,6 @@ class RegistroForm(UserCreationForm):
         }
 
 
-
-
-
-
 class ProductoForm(forms.ModelForm):
     class Meta:
         model = Producto
@@ -34,4 +30,12 @@ class ProductoForm(forms.ModelForm):
             'precio': forms.NumberInput(attrs={'class': 'form-control'}),
             'imagen': forms.ClearableFileInput(attrs={'class': 'form-control'}),
             'stock': forms.NumberInput(attrs={'class': 'form-control'}),
+        }
+
+class CambiarEstadoPedidoForm(forms.ModelForm):
+    class Meta:
+        model = Pedido
+        fields = ['estado']
+        widgets = {
+            'estado': forms.Select(attrs={'class': 'form-control'}),
         }

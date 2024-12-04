@@ -1,9 +1,9 @@
+from django.conf import settings
 from django.db import models
 
 
 
 from django.contrib.auth.models import AbstractUser
-
 
 class Usuario(AbstractUser):
     PREGUNTAS_RECUPERACION = [
@@ -31,19 +31,6 @@ class Usuario(AbstractUser):
     USERNAME_FIELD = 'correo'  # Usa 'correo' para autenticación
     REQUIRED_FIELDS = ['username', 'nombre', 'rol']  # 'username' sigue siendo obligatorio
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 class Producto(models.Model):
     nombre = models.CharField(max_length=100)
     descripcion = models.TextField()
@@ -55,15 +42,23 @@ class Producto(models.Model):
         return f"[ID: {self.id}] {self.nombre}"
 
 class Pedido(models.Model):
+    ESTADOS = [
+        ('PRE', 'Preparación'),
+        ('TRA', 'En tránsito'),
+        ('ENT', 'Entregado'),
+        ('CAN', 'Cancelado'),
+    ]
+
     nombre_cliente = models.CharField(max_length=100)
     direccion_envio = models.CharField(max_length=255)
     correo_electronico = models.EmailField()
-    productos = models.ManyToManyField(Producto, through='DetallePedido')
+    productos = models.ManyToManyField('Producto', through='DetallePedido')
     total = models.DecimalField(max_digits=10, decimal_places=2)
     fecha_pedido = models.DateTimeField(auto_now_add=True)
+    estado = models.CharField(max_length=3, choices=ESTADOS, default='PRE')  # Campo de estado
 
     def __str__(self):
-        return f"Pedido {self.id} - {self.nombre_cliente}"
+        return f"Pedido {self.id} - {self.nombre_cliente} - Estado: {self.get_estado_display()}"
 
 class DetallePedido(models.Model):
     pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE)
@@ -72,3 +67,13 @@ class DetallePedido(models.Model):
 
     def __str__(self):
         return f"{self.producto.nombre} - Cantidad: {self.cantidad}"
+    
+class HistorialEstadoPedido(models.Model):
+    pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, related_name='historial_estados')
+    estado_anterior = models.CharField(max_length=3, choices=Pedido.ESTADOS)
+    estado_nuevo = models.CharField(max_length=3, choices=Pedido.ESTADOS)
+    fecha_cambio = models.DateTimeField(auto_now_add=True)
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)  # Actualizado
+
+    def __str__(self):
+        return f"Historial Pedido {self.pedido.id} - {self.get_estado_anterior_display()} a {self.get_estado_nuevo_display()} por {self.usuario}"
