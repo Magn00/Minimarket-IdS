@@ -304,7 +304,7 @@ def ver_estado_pedido(request):
 from django.shortcuts import render
 
 def mi_vista(request):
-    # Puedes pasar un mensaje que desees mostrar en el popup
+    
     context = {
         'mensaje': '¡Tu pedido esta listo para retirar!'
     }
