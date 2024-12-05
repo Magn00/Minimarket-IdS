@@ -4,9 +4,6 @@ from django.conf.urls.static import static
 from django.conf import settings
 from .views import generar_pdf_pedido
 
-from django.contrib.auth.views import LoginView, LogoutView
-from .views import registro, HistorialCambioRol
-
 urlpatterns = [
     path('', views.lista_productos, name='lista_productos'),
     path('agregar/<int:producto_id>/', views.agregar_al_carrito, name='agregar_al_carrito'),
@@ -17,15 +14,6 @@ urlpatterns = [
     path('agregar_producto/', views.agregar_modificar_producto, name='agregar_producto'),
     path('modificar_producto/<int:producto_id>/', views.agregar_modificar_producto, name='modificar_producto'),
     path('borrar_producto/<int:producto_id>/', views.borrar_producto, name='borrar_producto'),
-    path('pedidos/', views.lista_pedidos, name='lista_pedidos'),
-    path('pedido/<int:pedido_id>/cambiar_estado/', views.cambiar_estado_pedido, name='cambiar_estado_pedido'),
-    path('pedido/<int:pedido_id>/', views.detalle_pedido, name='detalle_pedido'),
-    path('registro/', registro, name='registro'),
-    path('login/', LoginView.as_view(template_name='core/login.html'), name='login'),
-    path('logout/', LogoutView.as_view(), name='logout'),
-        path('historial_cambios_roles/', views.historial_cambios_roles, name='historial_cambios_roles'),
-    path('estado/', views.ver_estado_pedido, name='estado_pedido'),
-    
 ]
 
 
