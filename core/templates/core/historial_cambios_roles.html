@@ -1,0 +1,24 @@
+<!-- templates/core/historial_cambios_roles.html -->
+<h1>Historial de Cambios de Roles</h1>
+<table>
+    <thead>
+        <tr>
+            <th>Usuario Modificado</th>
+            <th>Rol Anterior</th>
+            <th>Rol Nuevo</th>
+            <th>Fecha de Cambio</th>
+            <th>Modificado Por</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for cambio in historial %}
+        <tr>
+            <td>{{ cambio.usuario_modificado }}</td>
+            <td>{{ cambio.rol_anterior }}</td>
+            <td>{{ cambio.rol_nuevo }}</td>
+            <td>{{ cambio.fecha_cambio }}</td>
+            <td>{{ cambio.usuario_modificador }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

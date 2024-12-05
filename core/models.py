@@ -16,7 +16,7 @@ class Usuario(AbstractUser):
     correo = models.EmailField(unique=True)
     pregunta_recuperacion = models.CharField(max_length=1, choices=PREGUNTAS_RECUPERACION)
     respuesta_pregunta = models.CharField(max_length=150)
-    rol = models.CharField(max_length=50, choices=[('cliente', 'Cliente'), ('trabajador', 'Trabajador')])
+    rol = models.CharField(max_length=50, choices=[('cliente', 'Cliente'), ('trabajador', 'Trabajador'), ('administrador', 'Administrador')])
 
     # Hacer que el 'username' sea igual al 'correo' si no se proporciona
     def save(self, *args, **kwargs):
@@ -77,3 +77,15 @@ class HistorialEstadoPedido(models.Model):
 
     def __str__(self):
         return f"Historial Pedido {self.pedido.id} - {self.get_estado_anterior_display()} a {self.get_estado_nuevo_display()} por {self.usuario}"
+
+class HistorialCambioRol(models.Model):
+    usuario_modificado = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='cambios_rol')
+    rol_anterior = models.CharField(max_length=50)
+    rol_nuevo = models.CharField(max_length=50)
+    fecha_cambio = models.DateTimeField(auto_now_add=True)
+    usuario_modificador = models.ForeignKey(
+        Usuario, on_delete=models.SET_NULL, null=True, blank=True, related_name='modificaciones_realizadas'
+    )
+
+    def __str__(self):
+        return f"{self.usuario_modificado} - {self.rol_anterior} a {self.rol_nuevo} por {self.usuario_modificador}"
