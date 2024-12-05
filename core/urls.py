@@ -24,6 +24,8 @@ urlpatterns = [
     path('login/', LoginView.as_view(template_name='core/login.html'), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
         path('historial_cambios_roles/', views.historial_cambios_roles, name='historial_cambios_roles'),
+    path('estado/', views.ver_estado_pedido, name='estado_pedido'),
+    
 ]
 
 

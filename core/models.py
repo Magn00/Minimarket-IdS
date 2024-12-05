@@ -44,7 +44,7 @@ class Producto(models.Model):
 class Pedido(models.Model):
     ESTADOS = [
         ('PRE', 'Preparación'),
-        ('TRA', 'En tránsito'),
+        ('TRA', 'En tránsito/Disponible para retiro'),
         ('ENT', 'Entregado'),
         ('CAN', 'Cancelado'),
     ]
@@ -56,7 +56,7 @@ class Pedido(models.Model):
     total = models.DecimalField(max_digits=10, decimal_places=2)
     fecha_pedido = models.DateTimeField(auto_now_add=True)
     estado = models.CharField(max_length=3, choices=ESTADOS, default='PRE')  # Campo de estado
-
+        
     def __str__(self):
         return f"Pedido {self.id} - {self.nombre_cliente} - Estado: {self.get_estado_display()}"
 
