@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Producto, HistorialEstadoPedido
+from .models import Producto, HistorialEstadoPedido, Usuario, HistorialCambioRol
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -9,11 +9,12 @@ from django.http import HttpResponse
 from .forms import ProductoForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-
+from .decorators import role_required
+from django.contrib.auth.decorators import user_passes_test
 
 
 from django import forms
-from .models import Pedido, DetallePedido
+from .models import Pedido, DetallePedido, HistorialCambioRol
 
 
 
@@ -148,6 +149,7 @@ def eliminar_del_carrito(request, producto_id):
 
 # Vista para que el vendedor agregue o edite productos
 @login_required
+@role_required('administrador')
 def agregar_modificar_producto(request, producto_id=None):
     producto = get_object_or_404(Producto, id=producto_id) if producto_id else None
     nombre_producto = None  # Inicializamos el nombre del producto
@@ -172,8 +174,10 @@ def agregar_modificar_producto(request, producto_id=None):
         'producto': producto,  # Pasamos el producto actual (None si es agregar)
     })
 
+
 #Borrar producto
 @login_required
+@role_required('administrador')
 def borrar_producto(request, producto_id):
     producto = get_object_or_404(Producto, id=producto_id)
     nombre_producto = producto.nombre  # Guardamos el nombre antes de eliminarlo
@@ -263,15 +267,21 @@ def generar_pdf_pedido(request, pedido_id):
 
     return response
 
+def is_staff_user(user):
+    return user.is_staff
+
+@user_passes_test(is_staff_user)
 def lista_pedidos(request):
     pedidos = Pedido.objects.all().order_by('-fecha_pedido')  # Ordenar por fecha más reciente primero
     return render(request, 'core/lista_pedidos.html', {'pedidos': pedidos})
 
+@user_passes_test(is_staff_user)
 def detalle_pedido(request, pedido_id):
     pedido = get_object_or_404(Pedido, id=pedido_id)
     return render(request, 'core/detalle_pedido.html', {'pedido': pedido})   
 
 @login_required
+@role_required('administrador')
 def cambiar_estado_pedido(request, pedido_id):
     pedido = get_object_or_404(Pedido, id=pedido_id)
 
@@ -293,3 +303,50 @@ def cambiar_estado_pedido(request, pedido_id):
             messages.error(request, "El estado seleccionado es inválido o no hay cambios.")
     
     return render(request, 'core/cambiar_estado_pedido.html', {'pedido': pedido})   
+@login_required
+@role_required('administrador')
+def cambiar_rol_usuario(request, usuario_id):
+    usuario = get_object_or_404(Usuario, id=usuario_id)
+
+    if request.method == 'POST':
+        nuevo_rol = request.POST.get('rol')
+        if nuevo_rol != usuario.rol:
+            HistorialCambioRol.objects.create(
+                usuario_modificado=usuario,
+                rol_anterior=usuario.rol,
+                rol_nuevo=nuevo_rol,
+                usuario_modificador=request.user
+            )
+            usuario.rol = nuevo_rol
+            usuario.save()
+            messages.success(request, f"El rol de {usuario.nombre} ha sido cambiado a {nuevo_rol}.")
+        else:
+            messages.warning(request, "El nuevo rol debe ser diferente al actual.")
+    return redirect('lista_usuarios')
+
+@login_required
+@role_required('administrador')
+def historial_cambios_roles(request):
+
+    historial = HistorialCambioRol.objects.all().order_by('-fecha_cambio')
+    return render(request, 'core/historial_cambios_roles.html', {'historial': historial})
+
+
+def error_403(request, exception=None):
+    return render(request, 'core/403.html', status=403)
+
+@login_required
+def ver_estado_pedido(request):
+    usuario = request.user  # Obtener el usuario actual (suponiendo que el usuario está autenticado)
+    pedidos = Pedido.objects.all()
+    
+    return render(request, 'core/estado_pedido.html', {'correo': usuario.correo, 'pedidos': pedidos})
+
+from django.shortcuts import render
+
+def mi_vista(request):
+    
+    context = {
+        'mensaje': '¡Tu pedido esta listo para retirar!'
+    }
+    return render(request, 'core/estado_pedido.html', context)

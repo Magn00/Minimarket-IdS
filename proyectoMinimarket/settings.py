@@ -141,3 +141,4 @@ AUTH_USER_MODEL = 'core.Usuario'
 
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
+HANDLER403 = 'core.views.error_403'
