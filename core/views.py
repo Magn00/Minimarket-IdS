@@ -267,15 +267,14 @@ def generar_pdf_pedido(request, pedido_id):
 
     return response
 
-def is_staff_user(user):
-    return user.is_staff
 
-@user_passes_test(is_staff_user)
+
+@role_required('administrador')
 def lista_pedidos(request):
     pedidos = Pedido.objects.all().order_by('-fecha_pedido')  # Ordenar por fecha más reciente primero
     return render(request, 'core/lista_pedidos.html', {'pedidos': pedidos})
 
-@user_passes_test(is_staff_user)
+@role_required('administrador')
 def detalle_pedido(request, pedido_id):
     pedido = get_object_or_404(Pedido, id=pedido_id)
     return render(request, 'core/detalle_pedido.html', {'pedido': pedido})   
