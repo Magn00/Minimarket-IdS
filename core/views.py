@@ -111,7 +111,7 @@ def eliminar_del_carrito(request, producto_id):
         guardar_carrito(request, carrito)  # Actualizamos el carrito en la sesión
 
     return redirect('ver_carrito')
-=======
+
 # Vista para que el vendedor agregue o edite productos
 @login_required
 def agregar_modificar_producto(request, producto_id=None):
