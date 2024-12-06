@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Producto, Pedido, DetallePedido, Usuario
+from .models import Producto, Pedido, DetallePedido
 
 class ProductoAdmin(admin.ModelAdmin):
     list_display = ('id', 'nombre', 'precio', 'stock')  # Mostrar ID junto al nombre
@@ -15,4 +15,3 @@ class PedidoAdmin(admin.ModelAdmin):
 
 admin.site.register(Producto, ProductoAdmin)
 admin.site.register(Pedido, PedidoAdmin)
-admin.site.register(Usuario)

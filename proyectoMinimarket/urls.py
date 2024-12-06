@@ -19,6 +19,6 @@ from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
-    path('admin/', admin.site.urls), #para entrar como admin --> correo: admin@correo.cl    -   clave:admin
+    path('admin/', admin.site.urls),
     path('', include('core.urls')),  # Esto enlaza las URLs de la app core
 ]

@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Producto, HistorialEstadoPedido, Usuario, HistorialCambioRol
+from .models import Producto
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -9,46 +9,11 @@ from django.http import HttpResponse
 from .forms import ProductoForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .decorators import role_required
-from django.contrib.auth.decorators import user_passes_test
+
 
 
 from django import forms
-from .models import Pedido, DetallePedido, HistorialCambioRol
-
-
-
-
-
-
-
-
-from django.contrib.auth import login
-from .forms import RegistroForm
-
-
-def registro(request):
-    if request.method == 'POST':
-        form = RegistroForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)  # Inicia sesión automáticamente después del registro
-            return redirect('lista_productos')
-    else:
-        form = RegistroForm()
-    return render(request, 'core/registro.html', {'form': form})
-
-
-
-
-
-
-
-
-
-
-
-
+from .models import Pedido, DetallePedido
 
 # Formulario para los datos del pedido
 class PedidoForm(forms.ModelForm):
@@ -149,7 +114,6 @@ def eliminar_del_carrito(request, producto_id):
 
 # Vista para que el vendedor agregue o edite productos
 @login_required
-@role_required('administrador')
 def agregar_modificar_producto(request, producto_id=None):
     producto = get_object_or_404(Producto, id=producto_id) if producto_id else None
     nombre_producto = None  # Inicializamos el nombre del producto
@@ -174,10 +138,8 @@ def agregar_modificar_producto(request, producto_id=None):
         'producto': producto,  # Pasamos el producto actual (None si es agregar)
     })
 
-
 #Borrar producto
 @login_required
-@role_required('administrador')
 def borrar_producto(request, producto_id):
     producto = get_object_or_404(Producto, id=producto_id)
     nombre_producto = producto.nombre  # Guardamos el nombre antes de eliminarlo
@@ -264,7 +226,6 @@ def generar_pdf_pedido(request, pedido_id):
     elementos.append(Paragraph(footer_text, estilo_normal))
     
     doc.build(elementos)
-
     return response
 
 
@@ -349,3 +310,5 @@ def mi_vista(request):
         'mensaje': '¡Tu pedido esta listo para retirar!'
     }
     return render(request, 'core/estado_pedido.html', context)
+    return response
+main
