@@ -226,5 +226,89 @@ def generar_pdf_pedido(request, pedido_id):
     elementos.append(Paragraph(footer_text, estilo_normal))
     
     doc.build(elementos)
-
     return response
+
+
+
+@role_required('administrador')
+def lista_pedidos(request):
+    pedidos = Pedido.objects.all().order_by('-fecha_pedido')  # Ordenar por fecha más reciente primero
+    return render(request, 'core/lista_pedidos.html', {'pedidos': pedidos})
+
+@role_required('administrador')
+def detalle_pedido(request, pedido_id):
+    pedido = get_object_or_404(Pedido, id=pedido_id)
+    return render(request, 'core/detalle_pedido.html', {'pedido': pedido})   
+
+@login_required
+@role_required('administrador')
+def cambiar_estado_pedido(request, pedido_id):
+    pedido = get_object_or_404(Pedido, id=pedido_id)
+
+    if request.method == 'POST':
+        nuevo_estado = request.POST.get('estado')
+        if nuevo_estado in dict(Pedido.ESTADOS).keys() and nuevo_estado != pedido.estado:
+            # Crear un registro en el historial de cambio
+            HistorialEstadoPedido.objects.create(
+                pedido=pedido,
+                estado_anterior=pedido.estado,
+                estado_nuevo=nuevo_estado,
+                usuario=request.user  # Registrar el usuario que hace el cambio
+            )
+            # Actualizar el estado del pedido
+            pedido.estado = nuevo_estado
+            pedido.save()
+            messages.success(request, f"El estado del pedido {pedido.id} ha sido actualizado a {pedido.get_estado_display()}.")
+        else:
+            messages.error(request, "El estado seleccionado es inválido o no hay cambios.")
+    
+    return render(request, 'core/cambiar_estado_pedido.html', {'pedido': pedido})   
+@login_required
+@role_required('administrador')
+def cambiar_rol_usuario(request, usuario_id):
+    usuario = get_object_or_404(Usuario, id=usuario_id)
+
+    if request.method == 'POST':
+        nuevo_rol = request.POST.get('rol')
+        if nuevo_rol != usuario.rol:
+            HistorialCambioRol.objects.create(
+                usuario_modificado=usuario,
+                rol_anterior=usuario.rol,
+                rol_nuevo=nuevo_rol,
+                usuario_modificador=request.user
+            )
+            usuario.rol = nuevo_rol
+            usuario.save()
+            messages.success(request, f"El rol de {usuario.nombre} ha sido cambiado a {nuevo_rol}.")
+        else:
+            messages.warning(request, "El nuevo rol debe ser diferente al actual.")
+    return redirect('lista_usuarios')
+
+@login_required
+@role_required('administrador')
+def historial_cambios_roles(request):
+
+    historial = HistorialCambioRol.objects.all().order_by('-fecha_cambio')
+    return render(request, 'core/historial_cambios_roles.html', {'historial': historial})
+
+
+def error_403(request, exception=None):
+    return render(request, 'core/403.html', status=403)
+
+@login_required
+def ver_estado_pedido(request):
+    usuario = request.user  # Obtener el usuario actual (suponiendo que el usuario está autenticado)
+    pedidos = Pedido.objects.all()
+    
+    return render(request, 'core/estado_pedido.html', {'correo': usuario.correo, 'pedidos': pedidos})
+
+from django.shortcuts import render
+
+def mi_vista(request):
+    
+    context = {
+        'mensaje': '¡Tu pedido esta listo para retirar!'
+    }
+    return render(request, 'core/estado_pedido.html', context)
+    return response
+main
