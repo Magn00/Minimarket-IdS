@@ -1,0 +1,41 @@
+{% extends 'core/base.html' %}
+
+{% block main %}
+<div class="container mt-5">
+    <h1>Detalle del Pedido {{ pedido.id }}</h1>
+    <p><strong>Cliente:</strong> {{ pedido.nombre_cliente }}</p>
+    <p><strong>Correo Electrónico:</strong> {{ pedido.correo_electronico }}</p>
+    <p><strong>Dirección de Envío:</strong> {{ pedido.direccion_envio }}</p>
+    <p><strong>Total:</strong> ${{ pedido.total }}</p>
+    <p><strong>Estado:</strong> {{ pedido.get_estado_display }}</p>
+    <p><strong>Fecha:</strong> {{ pedido.fecha_pedido|date:"d-m-Y H:i" }}</p>
+
+    <!-- Historial de cambios -->
+    <h3 class="mt-5">Historial de Estados</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Fecha de Cambio</th>
+                <th>Estado Anterior</th>
+                <th>Estado Nuevo</th>
+                <th>Cambiado por</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for historial in pedido.historial_estados.all %}
+            <tr>
+                <td>{{ historial.fecha_cambio|date:"d-m-Y H:i" }}</td>
+                <td>{{ historial.get_estado_anterior_display }}</td>
+                <td>{{ historial.get_estado_nuevo_display }}</td>
+                <td>{{ historial.usuario.username|default:"Desconocido" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Botón para volver a la lista de pedidos -->
+    <div class="mt-4">
+        <a href="{% url 'lista_pedidos' %}" class="btn btn-secondary">Volver a la Lista de Pedidos</a>
+    </div>
+</div>
+{% endblock %}
